@@ -1,8 +1,5 @@
 import contacts from '../models/contacts.js';
-
-// import { HttpError }  from "../helpers/HttpError.js";
 import HttpError from "../helpers/HttpError.js";
-
 import { ctrlWrapper } from "../decorators/index.js";
 
 

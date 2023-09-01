@@ -1,14 +1,29 @@
 import express from "express";
-// import contacts from '../../models/contacts.js';
-// import { HttpError } from "../../helpers/index.js";
- import contactSchema from "../../schemas/contact-schemas.js"
- import { validateBodyWrapper } from "../../decorators/index.js"
- import contactController from "../../controlers/contacts-controller.js"
-// import Joi from "joi";
+
+import contactSchema from "../../schemas/contact-schemas.js"
+import { validateBodyWrapper } from "../../decorators/index.js"
+import contactController from "../../controlers/contacts-controller.js"
+
 const router = express.Router();
 
 
- const contactValidate = validateBodyWrapper(contactSchema.addContactSchema);
+const contactValidate = validateBodyWrapper(contactSchema.addContactSchema);
+
+router.get('/', contactController.getAll);
+
+router.get('/:contactId', contactController.getById);
+
+router.post('/', contactValidate, contactController.add);
+
+
+router.delete('/:contactId', contactController.deleteById);
+
+
+router.put('/:contactId', contactValidate, contactController.updateById);
+
+export default router;
+
+
 
 // const addSchema = Joi.object({
 //   name: Joi.string()
@@ -117,16 +132,4 @@ const router = express.Router();
 //   // }
 // })
 
-router.get('/', contactController.getAll);
 
-router.get('/:contactId', contactController.getById);
-
-router.post('/', contactValidate, contactController.add);
-
-
-router.delete('/:contactId', contactController.deleteById);
-
-
-router.put('/:contactId', contactValidate, contactController.updateById);
-
-export default router;
