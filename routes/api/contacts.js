@@ -1,8 +1,8 @@
-const express = require('express')
-const router = express.Router()
-const contacts = require('../../models/contacts');
-const HttpError = require("../../helpers/HttpError");
-const Joi = require("joi");
+import express from "express";
+import contacts from '../../models/contacts.js';
+import { HttpError } from "../../helpers/index.js";
+import Joi from "joi";
+const router = express.Router();
 
 
 
@@ -10,11 +10,24 @@ const addSchema = Joi.object({
   name: Joi.string()
     .min(3)
     .max(30)
-    .required(),
+    .required()
+    .messages({
+      'any.required': 'missing required name field',
+    }),
 
   phone: Joi.string()
-    .pattern(new RegExp('^[0-9]{10}$'))
-    .required(),
+    .pattern(new RegExp('^\\(\\d{3}\\) \\d{3}-\\d{4}$'))
+    .required()
+    .messages({
+      'any.required': 'missing required phone field',
+      'string.pattern.base': 'phone field must have the format (123) 456-7890',
+    }),
+
+  email: Joi.string()
+  .required()
+  .messages({
+    'any.required': 'missing required email field',
+  }),
 })
 
 
@@ -45,7 +58,7 @@ router.post('/', async (req, res, next) => {
     const { error } = addSchema.validate(newContact);
 
     if (error) {
-      throw HttpError(400, "missing required name field")
+      throw HttpError(400, error.message);
     }
 
     const result = await contacts.addContact(newContact);
@@ -79,14 +92,16 @@ router.delete('/:contactId', async (req, res, next) => {
 
 router.put('/:contactId', async (req, res, next) => {
   try {
+    const body = req.body
+    const contactId = req.params.contactId;
     const { error } = addSchema.validate(body);
 
     if (error) {
-      throw HttpError(400, "missing fields");
+      throw HttpError(400, error.message);
     }
 
-    const contactId = req.params.contactId;
-    const body = req.body
+
+
     const result = await contacts.updateContact(contactId, body);
 
     if (!result) {
@@ -99,4 +114,4 @@ router.put('/:contactId', async (req, res, next) => {
   }
 })
 
-module.exports = router
+export default router;
