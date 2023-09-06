@@ -21,6 +21,8 @@ router.delete('/:contactId', contactController.deleteById);
 
 router.put('/:contactId', contactValidate, contactController.updateById);
 
+router.patch('/:contactId/favorite', contactValidate, contactController.updeteStatus);
+
 export default router;
 
 
