@@ -3,25 +3,27 @@ import express from "express";
 import contactSchema from "../../schemas/contact-schemas.js"
 import { validateBodyWrapper } from "../../decorators/index.js"
 import contactController from "../../controlers/contacts-controller.js"
+import { isValidId} from "../../middlewarws/index.js"
 
 const router = express.Router();
 
 
 const contactValidate = validateBodyWrapper(contactSchema.addContactSchema);
+const contactUpdateFavoriteSchema = validateBodyWrapper(contactSchema.contactUpdateFavoriteSchema);
 
 router.get('/', contactController.getAll);
 
-router.get('/:contactId', contactController.getById);
+router.get('/:contactId', isValidId, contactController.getById);
 
 router.post('/', contactValidate, contactController.add);
 
 
-router.delete('/:contactId', contactController.deleteById);
+router.delete('/:contactId', isValidId,  contactController.deleteById);
 
 
-router.put('/:contactId', contactValidate, contactController.updateById);
+router.put('/:contactId', isValidId, contactValidate, contactController.updateById);
 
-router.patch('/:contactId/favorite', contactValidate, contactController.updeteStatus);
+router.patch('/:contactId/favorite', isValidId, contactUpdateFavoriteSchema, contactController.updateById);
 
 export default router;
 
