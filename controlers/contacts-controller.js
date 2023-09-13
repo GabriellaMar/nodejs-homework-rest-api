@@ -50,6 +50,9 @@ const updateById = async (req, res) => {
     if (!result) {
         throw HttpError(400, "Not found");
     }
+    if (body === undefined) {
+        throw HttpError(400, "missing field favorite");
+    }
     res.status(200).json(result);
 }
 
