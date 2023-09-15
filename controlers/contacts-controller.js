@@ -5,7 +5,10 @@ import Contact from '../models/Contact.js';
 
 
 const getAll = async (req, res) => {
-    const result = await Contact.find();
+    const { _id: owner } = req.user;
+    const { page = 1, limit = 2 } = req.query;
+    const skip = (page - 1) * limit;
+    const result = await Contact.find({ owner }).skip(skip).limit(parseInt(limit)).populate("owner", "userName email");
     res.status(200).json(result)
 }
 
@@ -24,7 +27,8 @@ const getById = async (req, res) => {
 
 const add = async (req, res) => {
     const newContact = req.body;
-    const result = await Contact.create(newContact);
+    const { _id: owner } = req.user;
+    const result = await Contact.create({ ...newContact, owner });
 
     res.status(201).json(result);
 }
@@ -53,6 +57,25 @@ const updateById = async (req, res) => {
     res.status(200).json(result);
 }
 
+// контролер для фільтрації контактів за полем favorite---------
+
+const getFiltered = async (req, res) => {
+
+    const { _id: owner } = req.user;
+    const { favorite } = req.query;
+
+    let filteredContacts;
+    try {
+        if (favorite === "true") {
+            filteredContacts = await Contact.find({ owner, favorite: true });
+        }
+        res.status(200).json(filteredContacts);
+    } catch (error) {
+        console.log('Немає улюблених контактів')
+    }
+
+}
+
 
 
 export default {
@@ -61,4 +84,5 @@ export default {
     add: ctrlWrapper(add),
     updateById: ctrlWrapper(updateById),
     deleteById: ctrlWrapper(deleteById),
+    getFiltered: ctrlWrapper(getFiltered),
 }

@@ -17,6 +17,4 @@ console.log(error.message);
 process.exit(1);
  })
 
-console.log(process.env)
-const key = 'MkrzUBn7szgS0Tt6';
-// mongodb+srv://Gabriella:MkrzUBn7szgS0Tt6@cluster0.i5vmm9f.mongodb.net/
+// console.log(process.env)

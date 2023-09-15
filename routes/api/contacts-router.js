@@ -1,19 +1,27 @@
 import express from "express";
-
-import contactSchema from "../../schemas/contact-schemas.js"
+import * as contactSchemas from "../../models/Contact.js";
+// import contactSchema from "../../schemas/contact-schemas.js"
 import { validateBodyWrapper } from "../../decorators/index.js"
 import contactController from "../../controlers/contacts-controller.js"
-import { isValidId} from "../../middlewarws/index.js"
+import { isValidId, authenticate} from "../../middlewarws/index.js"
 
 const router = express.Router();
 
+router.use(authenticate);
 
-const contactValidate = validateBodyWrapper(contactSchema.addContactSchema);
-const contactUpdateFavoriteSchema = validateBodyWrapper(contactSchema.contactUpdateFavoriteSchema);
+
+const contactValidate = validateBodyWrapper(contactSchemas.addContactSchema);
+const contactUpdateFavoriteSchema = validateBodyWrapper(contactSchemas.contactUpdateFavoriteSchema);
+
+
 
 router.get('/', contactController.getAll);
 
+
 router.get('/:contactId', isValidId, contactController.getById);
+
+// маршрут для фільтрації контактів за полем favorite---------------
+router.get('/contacts', isValidId ,contactValidate, contactController.getFiltered)
 
 router.post('/', contactValidate, contactController.add);
 
@@ -24,6 +32,7 @@ router.delete('/:contactId', isValidId,  contactController.deleteById);
 router.put('/:contactId', isValidId, contactValidate, contactController.updateById);
 
 router.patch('/:contactId/favorite', isValidId, contactUpdateFavoriteSchema, contactController.updateById);
+
 
 export default router;
 
