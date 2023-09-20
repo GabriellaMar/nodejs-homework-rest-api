@@ -3,9 +3,12 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import HttpError from "../helpers/HttpError.js";
 import { ctrlWrapper } from "../decorators/index.js";
-
+import path from "path";
+import fs from "fs/promises";
+import gravatar from "gravatar";
 
 const { JWT_SECRET } = process.env;
+const avatarPath = path.resolve("public", "avatars")
 
 
 const register = async (req, res) => {
@@ -16,7 +19,8 @@ const register = async (req, res) => {
         throw HttpError(409, "Email in use")
     }
     const hasPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({ ...req.body, password: hasPassword });
+    const avatarURL = gravatar.url(email)
+    const newUser = await User.create({ ...req.body, password: hasPassword, avatarURL });
 
     res.status(201).json({
 
@@ -69,7 +73,7 @@ const getCurrent = (req, res) => {
 
 const logout = async (req, res) => {
     const { _id } = req.user;
-    const user = await User.findByIdAndUpdate(_id, { token: '' })
+    const user = await User.findByIdAndUpdate(_id, { token: '' });
 
     if (!user) {
         throw HttpError(401, "Not authorized")
@@ -78,10 +82,30 @@ const logout = async (req, res) => {
 }
 
 
+const updateAvatar = async (req, res) => {
+    const { _id } = req.user;
+    const { path: oldPath, filename } = req.file;
+    const newPath = path.join(avatarPath, filename);
+    await fs.rename(oldPath, newPath);
+    const avatarURL = path.join("avatars", filename);
+    await User.findByIdAndUpdate(_id, { avatarURL });
+
+    if (!user) {
+        throw HttpError(401, "Not authorized")
+    }
+
+    res.status(200).json({
+        avatarURL,
+    })
+
+
+}
+
 
 export default {
     register: ctrlWrapper(register),
     login: ctrlWrapper(login),
     logout: ctrlWrapper(logout),
     getCurrent: ctrlWrapper(getCurrent),
+    updateAvatar: ctrlWrapper(updateAvatar),
 }

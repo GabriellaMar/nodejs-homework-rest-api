@@ -4,12 +4,18 @@ import { ctrlWrapper } from "../decorators/index.js";
 import Contact from '../models/Contact.js';
 
 
-const getAll = async (req, res) => {
-    const { _id: owner } = req.user;
-    const { page = 1, limit = 2 } = req.query;
+// const avatarPath = path.resolve('public', 'avatars')
+// контролер для отримання всього списку контактів, пагінація, фільтрація контактів за полем favorite---------
+const getAll =  async (req, res) => {
+    const { _id } = req.user;
+    const { page = 1, limit = 10, favorite = false } = req.query;
+    
     const skip = (page - 1) * limit;
-    const result = await Contact.find({ owner }).skip(skip).limit(parseInt(limit)).populate("owner", "userName email");
-    res.status(200).json(result)
+    const contacts = favorite
+    ? await Contact.find({ owner: _id, favorite: true },"-createdAt -updatedAt",{ skip, limit: Number(limit), }).populate("owner", "email _id")
+    : await Contact.find({ owner: _id }, "-createdAt -updatedAt", { skip, limit: Number(limit), }).populate("owner", "email _id");
+    
+    res.status(200).json(contacts)
 }
 
 
@@ -28,6 +34,12 @@ const getById = async (req, res) => {
 const add = async (req, res) => {
     const newContact = req.body;
     const { _id: owner } = req.user;
+    // const {path: oldPath, filename} = req.file;
+    // console.log(newContact);
+    // console.log(file);
+    // // const newPath = path.join(avatarPath, filename);
+    // // fs.rename(oldPath, newPath);
+    // const avatar = path.join('public',  'avatars', filename);
     const result = await Contact.create({ ...newContact, owner });
 
     res.status(201).json(result);
@@ -57,24 +69,7 @@ const updateById = async (req, res) => {
     res.status(200).json(result);
 }
 
-// контролер для фільтрації контактів за полем favorite---------
 
-const getFiltered = async (req, res) => {
-
-    const { _id: owner } = req.user;
-    const { favorite } = req.query;
-
-    let filteredContacts;
-    try {
-        if (favorite === "true") {
-            filteredContacts = await Contact.find({ owner, favorite: true });
-        }
-        res.status(200).json(filteredContacts);
-    } catch (error) {
-        console.log('Немає улюблених контактів')
-    }
-
-}
 
 
 
@@ -84,5 +79,4 @@ export default {
     add: ctrlWrapper(add),
     updateById: ctrlWrapper(updateById),
     deleteById: ctrlWrapper(deleteById),
-    getFiltered: ctrlWrapper(getFiltered),
 }
