@@ -8,8 +8,13 @@ const authRouter = express.Router();
 
 const userRegisterValidate = validateBodyWrapper(userSchemas.userSignupSchema);
 const userLoginValidate = validateBodyWrapper(userSchemas.userSigninSchema)
+const userEmailValidate = validateBodyWrapper(userSchemas.userEmailSchema)
 
 authRouter.post("/register",  userRegisterValidate, authController.register);
+
+authRouter.get("/verify/:verificationToken", authController.verify)
+
+authRouter.post("/verify", userEmailValidate, authController.resendVerifyEmail);
 
 authRouter.post("/login", userLoginValidate, authController.login);
 
