@@ -15,12 +15,7 @@ const nodemailerConfig = {
 
 const transport = nodemailer.createTransport(nodemailerConfig);
 
-// const email = {
-//     from: UKR_NET_EMAIL_FROM,
-//     to: "jamiye3303@apxby.com",
-//     subject: "Test email",
-//     html: "<strong> This is the test email</strong>"
-// }
+
 
 // const data ={
 //     to: "jamiye3303@apxby.com",
@@ -28,12 +23,9 @@ const transport = nodemailer.createTransport(nodemailerConfig);
 //     html: "<strong> This is the test email</strong>"
 // }
 
-const sendEmail = data=>{
-    const email = {...data, from: UKR_NET_EMAIL_FROM}
+const sendEmail = data => {
+    const email = { ...data, from: UKR_NET_EMAIL_FROM }
     return transport.sendMail(email)
 }
- export default sendEmail;
+export default sendEmail;
 
-// transport.sendMail(email)
-// .then(()=>console.log("Email was sent successfully"))
-// .catch(error => console.log(error.message))

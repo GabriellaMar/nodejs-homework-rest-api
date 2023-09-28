@@ -1,8 +1,14 @@
 import { Schema, model } from "mongoose";
+
 import Joi from "joi";
+
 import { handleSaveError, runValidateAtUpdate } from "./hooks.js";
 
- const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+
+const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+
 
 const userSchema = new Schema({
     userName: {
@@ -27,23 +33,24 @@ const userSchema = new Schema({
         enum: ["starter", "pro", "business"],
         default: "starter"
     },
-  token: {
-    type: String,
-     default: '',
-  },
-  
+    token: {
+        type: String,
+        default: '',
+    },
+
     avatarURL: {
         type: String,
         required: true,
-    }, 
+    },
     verify: {
         type: Boolean,
         default: false,
     },
     varificationToken: {
         type: String,
+        required: [true, 'Verify token is required'],
     },
-  
+
 
 }, { versionKey: false, timestamps: true })
 
@@ -55,21 +62,21 @@ userSchema.post('findOneAndUpdate', handleSaveError);
 
 
 
-
 export const userSignupSchema = Joi.object({
     userName: Joi.string().required(),
     email: Joi.string().pattern(emailRegexp).required(),
     password: Joi.string().min(6).required(),
 })
 
+
 export const userSigninSchema = Joi.object({
     email: Joi.string().pattern(emailRegexp).required(),
     password: Joi.string().min(6).required(),
 })
 
+
 export const userEmailSchema = Joi.object({
     email: Joi.string().pattern(emailRegexp).required(),
-    // password: Joi.string().min(6).required(),
 })
 
 const User = model("user", userSchema);
